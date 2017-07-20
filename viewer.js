@@ -26,6 +26,8 @@ if (!PDFJS.PDFViewer || !PDFJS.getDocument) {
         '  `gulp dist-install`');
 }
 
+
+
 PDFJS.useOnlyCssZoom = true;
 PDFJS.disableTextLayer = true;
 PDFJS.maxImageSize = 1024 * 1024;
@@ -34,11 +36,19 @@ PDFJS.workerSrc = '/pdf.worker.bundle.js/';
 //PDFJS.cMapUrl = '/node_modules/pdfjs-dist/cmaps/';
 PDFJS.cMapPacked = true;
 
-var DEFAULT_URL = 'ET_Zeichung_470020700a - Links.pdf';
+//var DEFAULT_URL = 'ET_Zeichung_470020700a - Links.pdf';
+var DEFAULT_URL = 'sq_anmeldung_de.pdf';
 var DEFAULT_SCALE_DELTA = 1.1;
 var MIN_SCALE = 0.25;
 var MAX_SCALE = 10.0;
 var DEFAULT_SCALE_VALUE = 'auto';
+var PAGE_COUNT = 1;
+var PAGE_RENDERED = 0;
+
+window.setPdfUrl = function(){
+  localStorage.setItem("pdf", document.getElementById('pdfUrl').value); 
+  location.href='viewer.html';
+}
 
 var PDFViewerApplication = {
   pdfLoadingTask: null,
@@ -63,7 +73,7 @@ var PDFViewerApplication = {
 
     var url = params.url;
     var self = this;
-    this.setTitleUsingUrl(url);
+    //this.setTitleUsingUrl(url);
 
     // Loading document.
     var loadingTask = PDFJS.getDocument(url);
@@ -76,11 +86,12 @@ var PDFViewerApplication = {
     return loadingTask.promise.then(function (pdfDocument) {
       // Document loaded, specifying document for the viewer.
       self.pdfDocument = pdfDocument;
+	  PAGE_COUNT = pdfDocument.numPages;
       self.pdfViewer.setDocument(pdfDocument);
       self.pdfLinkService.setDocument(pdfDocument);
       self.pdfHistory.initialize(pdfDocument.fingerprint);
       self.loadingBar.hide();
-      self.setTitleUsingMetadata(pdfDocument);
+      //self.setTitleUsingMetadata(pdfDocument);
     }, function (exception) {
       var message = exception && exception.message;
       var l10n = self.l10n;
@@ -363,20 +374,10 @@ document.addEventListener('DOMContentLoaded', function () {
 }, true);
 
 document.addEventListener('pagerendered', function(e){
-	
-	var x = $('.linkAnnotation').find('a').each(function() {
-		var spare = $(this).attr("href");
-		$(this).attr({
-			"href" : "#",
-			"title" : "test alert",
-			"onClick" : "alert('spare => "+ spare +"')" 
-		});
-	});
-		
-	
-	
-	debugger;
-	
+  
+var myElement = document.getElementById('viewer');
+
+
 }, true);
 
 (function animationStartedClosure() {
@@ -391,6 +392,9 @@ document.addEventListener('pagerendered', function(e){
 // We need to delay opening until all HTML is loaded.
 PDFViewerApplication.animationStartedPromise.then(function () {
   PDFViewerApplication.open({
-    url: DEFAULT_URL
+		  //url: DEFAULT_URL
+	  url: localStorage.getItem("pdf")
+	  
+	  
   });
 });

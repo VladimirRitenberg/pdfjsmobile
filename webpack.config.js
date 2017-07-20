@@ -9,6 +9,10 @@ module.exports = {
     path: __dirname,
     filename: '[name].bundle.js'
   },
+  resolve: {
+		modules: [__dirname, 'node_modules'],
+		extensions: ['*', '.js', '.jsx', '.css']    
+		},
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compressor: {
@@ -22,20 +26,21 @@ module.exports = {
         })
   ],
 	module: {
+		
         loaders: [
             { 
 				test: /\.css$/, 
 				loader: "style-loader!css-loader" 
 			},
 			{	test: /\.(jpe?g|png|gif|svg)$/i, 
-				loader: "file-loader?name=/images/[name].[ext]"}
-        ],
-		resolve: {
-			extensions: ['', '.js', '.jsx', '.css'],
-			modulesDirectories: [
-			  'node_modules'
-			]        
-		},	
+				loader: "file-loader?name=/images/[name].[ext]"
+			},
+			{
+        test: /\.jsx$/, 
+        exclude: /node_modules/,
+				loader: "babel-loader"
+			}
+        ]
     }
 	
 };
